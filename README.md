@@ -2,10 +2,22 @@
 
 A little Go static binary tool to convert Docker's buildx CPU architectures such as `linux/arm/v7` to strings for other compilers.
 
+## Setup
+
+```sh
+VERSION=v0.1.0
+ARCH=amd64
+wget -O xcputranslate "https://github.com/qdm12/xcputranslate/releases/download/$VERSION/xcputranslate_$VERSION_linux_$ARCH"
+chmod 500 xcputranslate
+```
+
 ## Usage
 
 ```sh
+echo linux/arm/v7 | xcputranslate -language golang -field arch
+# arm
 echo linux/arm/v7 | xcputranslate -language golang -field arm
+# 7
 ```
 
 More information with
