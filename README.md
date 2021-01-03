@@ -32,3 +32,19 @@ xcputranslate -help
 ## Other languages
 
 ▶️ [Create an issue](https://github.com/qdm12/xcputranslate/issues/new)!
+
+## Build it yourself
+
+Install Go, then either
+
+- Download it on your machine:
+
+  ```sh
+  go get github.com/qdm12/xcputranslate/cmd/xcputranslate
+  ```
+
+- Clone this repository and build it:
+
+  ```sh
+  GOARCH=arm GOARM=7 go build cmd/xcputranslate/main.go
+  ```
