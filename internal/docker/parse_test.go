@@ -33,7 +33,7 @@ func Test_Parse(t *testing.T) {
 		},
 		{
 			s:        "linux/386",
-			platform: Platform{Arch: C_386},
+			platform: Platform{Arch: C386},
 		},
 		{
 			s:        "linux/arm64",

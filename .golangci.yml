@@ -4,6 +4,20 @@ linters-settings:
   misspell:
     locale: US
 
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - goerr113
+    - path: internal/docker/parse\.go
+      linters:
+        - gomnd
+      text: "mnd: Magic number: 2, in <case> detected"
+    - path: internal/docker/parse\.go
+      linters:
+        - gomnd
+      text: "mnd: Magic number: 3, in <case> detected"
+
 linters:
   disable-all: true
   enable:
@@ -16,7 +30,6 @@ linters:
     - errorlint
     - exhaustive
     - exportloopref
-    - funlen
     - gci
     - gochecknoglobals
     - gochecknoinits
