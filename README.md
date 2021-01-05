@@ -11,6 +11,14 @@ wget -O xcputranslate "https://github.com/qdm12/xcputranslate/releases/download/
 chmod 500 xcputranslate
 ```
 
+In a Dockerfile:
+
+```Dockerfile
+COPY --from=qmcgaw/xcputranslate /xcputranslate ./xcputranslate
+```
+
+This will pull the binary for your build architecture so you don't have to specify which CPU architecture you need.
+
 ## Usage
 
 ```sh
@@ -24,6 +32,12 @@ More information with
 
 ```sh
 xcputranslate -help
+```
+
+In a Dockerfile, for example with Buildx:
+
+```Dockerfile
+RUN echo $TARGETPLATFORM | xcputranslate -language golang -field arch
 ```
 
 ## Platforms supported
