@@ -26,9 +26,7 @@ FROM --platform=linux/amd64 base AS build
 ARG TARGETPLATFORM
 # The built xcputranslate binary is used
 # to cross compile the program within Docker
-RUN wget -qO /usr/local/bin/xcputranslate \
-  https://github.com/qdm12/xcputranslate/releases/download/v0.1.0/xcputranslate_0.1.0_linux_amd64 && \
-  chmod 500 /usr/local/bin/xcputranslate
+COPY --from=qmcgaw/xcputranslate /xcputranslate /usr/local/bin/xcputranslate
 ARG VERSION=unknown
 ARG BUILD_DATE="an unknown date"
 ARG COMMIT=unknown
