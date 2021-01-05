@@ -1,7 +1,7 @@
 ARG ALPINE_VERSION=3.12
 ARG GO_VERSION=1.15
 
-FROM --platform=linux/amd64 golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS base
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS base
 RUN apk --update add git
 ENV CGO_ENABLED=0
 WORKDIR /tmp/gobuild
@@ -10,19 +10,19 @@ RUN go mod download
 COPY cmd/ ./cmd/
 COPY internal/ ./internal/
 
-FROM --platform=linux/amd64 base AS test
+FROM --platform=$BUILDPLATFORM base AS test
 ENV CGO_ENABLED=1
 RUN apk --update add g++
 RUN go test -race ./...
 
-FROM --platform=linux/amd64 base AS lint
+FROM --platform=$BUILDPLATFORM base AS lint
 ARG GOLANGCI_LINT_VERSION=v1.34.1
 RUN wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | \
   sh -s -- -b /usr/local/bin ${GOLANGCI_LINT_VERSION}
 COPY .golangci.yml ./
 RUN golangci-lint run --timeout=10m
 
-FROM --platform=linux/amd64 base AS build
+FROM --platform=$BUILDPLATFORM base AS build
 ARG TARGETPLATFORM
 # The built xcputranslate binary is used
 # to cross compile the program within Docker
