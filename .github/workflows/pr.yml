@@ -18,10 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: crazy-max/ghaction-docker-buildx@v3
-      - run: |
-          docker buildx build \
-            --progress plain \
+      - env:
+          DOCKER_BUILDKIT: "1"
+        run: |
+          docker build \
             --target test \
             .
 
@@ -29,10 +29,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: crazy-max/ghaction-docker-buildx@v3
-      - run: |
-          docker buildx build \
-            --progress plain \
+      - env:
+          DOCKER_BUILDKIT: "1"
+        run: |
+          docker build \
             --target lint \
             .
 
@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test, lint]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build image
+      - uses: actions/checkout@v2
+      - env:
+          DOCKER_BUILDKIT: "1"
         run: docker build .
