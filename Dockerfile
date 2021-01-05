@@ -24,9 +24,15 @@ RUN golangci-lint run --timeout=10m
 
 FROM --platform=$BUILDPLATFORM base AS build
 ARG TARGETPLATFORM
-# The built xcputranslate binary is used
-# to cross compile the program within Docker
-COPY --from=qmcgaw/xcputranslate /xcputranslate /usr/local/bin/xcputranslate
+# When building the first time or when adding a CPU architecture,
+# use the built xcputranslate binary to cross compile the program
+# within Docker
+RUN wget -qO /usr/local/bin/xcputranslate \
+  https://github.com/qdm12/xcputranslate/releases/download/v0.1.0/xcputranslate_0.1.0_linux_amd64 && \
+  chmod 500 /usr/local/bin/xcputranslate
+# If an image for each the CPU architectures exists, you can use the
+# copy command below:
+# COPY --from=qmcgaw/xcputranslate /xcputranslate /usr/local/bin/xcputranslate
 ARG VERSION=unknown
 ARG BUILD_DATE="an unknown date"
 ARG COMMIT=unknown
