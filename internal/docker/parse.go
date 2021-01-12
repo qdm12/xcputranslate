@@ -24,7 +24,7 @@ func Parse(s string) (platform Platform, err error) {
 	case 2:
 		platform.Arch = Arch(elements[1])
 		switch platform.Arch {
-		case AMD64, C386, ARM64, S390X, PPC64LE:
+		case AMD64, C386, ARM64, S390X, PPC64LE, RISCV64:
 		case ARM:
 			return platform, fmt.Errorf("%w from %q", ErrArchVersionMissing, s)
 		default:
@@ -33,7 +33,7 @@ func Parse(s string) (platform Platform, err error) {
 	case 3:
 		platform.Arch = Arch(elements[1])
 		switch platform.Arch {
-		case AMD64, C386, ARM64, S390X, PPC64LE:
+		case AMD64, C386, ARM64, S390X, PPC64LE, RISCV64:
 			return platform, fmt.Errorf("%w in %q", ErrTooManyFields, s)
 		case ARM:
 			platform.Version = ArchVersion(elements[2])

@@ -81,6 +81,7 @@ xcputranslate -targetplatform "linux/arm/v7" -language golang -field arch
 - `linux/arm/v7`
 - `linux/s390x`
 - `linux/ppc64le`
+- `linux/riscv64`
 
 ## Languages supported
 

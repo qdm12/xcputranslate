@@ -7,6 +7,7 @@ const (
 	ARM     Arch = "arm"
 	S390X   Arch = "s390x"
 	PPC64LE Arch = "ppc64le"
+	RISCV64 Arch = "riscv64"
 )
 
 const (

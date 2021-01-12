@@ -48,6 +48,10 @@ func Test_Parse(t *testing.T) {
 			platform: Platform{Arch: PPC64LE},
 		},
 		{
+			s:        "linux/riscv64",
+			platform: Platform{Arch: RISCV64},
+		},
+		{
 			s:   "linux/arm",
 			err: errors.New(`arch version is missing from "linux/arm"`),
 		},
