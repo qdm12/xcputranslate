@@ -38,8 +38,8 @@ RUN go mod download
 COPY . .
 
 # 🦾 We cross build for linux/arm/v7
-RUN GOARCH="$(echo ${TARGETPLATFORM} | xcputranslate -language golang -field arch)" \
-    GOARM="$(echo ${TARGETPLATFORM} | xcputranslate -language golang -field arm)" \
+RUN GOARCH="$(xcputranslate -targetplatform ${TARGETPLATFORM}  -language golang -field arch)" \
+    GOARM="$(xcputranslate -targetplatform ${TARGETPLATFORM} -language golang -field arm)" \
     go build -o entrypoint main.go
 
 # This is built on the target architecture (e.g. linux/arm/v7)
@@ -53,7 +53,7 @@ COPY --from=build --chown=1000 /tmp/gobuild/entrypoint /usr/local/bin/entrypoint
 Note that you can also specify a Docker tag to have the program matching a certain Github release. For example:
 
 ```Dockerfile
-COPY --from=qmcgaw/xcputranslate:v0.2.0 /xcputranslate /usr/local/bin/xcputranslate
+COPY --from=qmcgaw/xcputranslate:v0.3.0 /xcputranslate /usr/local/bin/xcputranslate
 ```
 
 ### Out of Docker
@@ -62,13 +62,13 @@ You can also run already built binaries out of Docker:
 
 ```sh
 # Install
-VERSION=v0.2.0
+VERSION=v0.3.0
 ARCH=amd64
 wget -O xcputranslate "https://github.com/qdm12/xcputranslate/releases/download/$VERSION/xcputranslate_$VERSION_linux_$ARCH"
 chmod +x xcputranslate
 
 # Run
-echo "linux/arm/v7" | xcputranslate -language golang -field arch
+xcputranslate -targetplatform "linux/arm/v7" -language golang -field arch
 # 7
 ```
 

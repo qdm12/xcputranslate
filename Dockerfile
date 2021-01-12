@@ -31,8 +31,8 @@ ARG BUILD_DATE="an unknown date"
 ARG COMMIT=unknown
 COPY cmd/ ./cmd/
 COPY internal/ ./internal/
-RUN GOARCH="$(echo ${TARGETPLATFORM} | xcputranslate -field arch)" \
-  GOARM="$(echo ${TARGETPLATFORM} | xcputranslate -field arm)" \
+RUN GOARCH="$(xcputranslate -targetplatform ${TARGETPLATFORM} -field arch)" \
+  GOARM="$(xcputranslate -targetplatform ${TARGETPLATFORM} -field arm)" \
   go build -trimpath -ldflags="-s -w \
   -X 'main.version=$VERSION' \
   -X 'main.buildDate=$BUILD_DATE' \

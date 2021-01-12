@@ -1,14 +1,12 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"errors"
 	"flag"
 	"fmt"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
 
@@ -75,7 +73,7 @@ func main() {
 	os.Exit(exitCode)
 }
 
-func _main(ctx context.Context, args []string, buildInfo models.BuildInfo) error {
+func _main(_ context.Context, args []string, buildInfo models.BuildInfo) error {
 	if len(args) > 1 && args[1] == "version" {
 		fmt.Printf("🤖 Version %s (commit %s built on %s)\n",
 			buildInfo.Version, buildInfo.Commit, buildInfo.BuildDate)
@@ -85,38 +83,14 @@ func _main(ctx context.Context, args []string, buildInfo models.BuildInfo) error
 	flagSet := flag.NewFlagSet(args[0], flag.ExitOnError)
 	languagePtr := flagSet.String("language", "golang", "can be one of: golang")
 	fieldPtr := flagSet.String("field", "arch", "can be one of: arch, arm")
+	targetPlatformPtr := flagSet.String("targetplatform", "", "can be for example linux/arm64")
 	if err := flagSet.Parse(args[1:]); err != nil {
 		return err
 	}
 
-	reader := bufio.NewReader(os.Stdin)
+	language, field, targetPlatform := *languagePtr, *fieldPtr, *targetPlatformPtr
 
-	outputCh := make(chan string)
-	errCh := make(chan error)
-	go func() {
-		s, err := reader.ReadString('\n')
-		if err != nil {
-			errCh <- err
-			return
-		}
-		outputCh <- s
-	}()
-
-	var input string
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	case input = <-outputCh:
-	case err := <-errCh:
-		close(outputCh)
-		return err
-	}
-
-	input = strings.TrimSuffix(input, "\n")
-
-	language, field := *languagePtr, *fieldPtr
-
-	platform, err := docker.Parse(input)
+	platform, err := docker.Parse(targetPlatform)
 	if err != nil {
 		return err
 	}
