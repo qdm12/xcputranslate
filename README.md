@@ -2,45 +2,77 @@
 
 A little Go static binary tool to convert Docker's buildx CPU architectures such as `linux/arm/v7` to strings for other compilers.
 
-## Setup
+## Setup and usage
+
+💡 It should be used with either:
+
+- Docker [buildx](https://docs.docker.com/buildx/working-with-buildx/) builds
+- Docker builds running with [`DOCKER_BUILDKIT=1`](https://docs.docker.com/develop/develop-images/build_enhancements/#to-enable-buildkit-builds)
+
+The following shows an example on how to use it to cross compile a Go program.
+
+We compile for `linux/arm/v7` on a `linux/amd64` machine using:
 
 ```sh
-VERSION=v0.1.0
-ARCH=amd64
-wget -O xcputranslate "https://github.com/qdm12/xcputranslate/releases/download/$VERSION/xcputranslate_$VERSION_linux_$ARCH"
-chmod 500 xcputranslate
+docker build --platform linux/arm/v7 .
 ```
-
-In a Dockerfile:
 
 ```Dockerfile
-COPY --from=qmcgaw/xcputranslate /xcputranslate ./xcputranslate
+# We use the builder native architecture to build the program
+FROM --from=${BUILDPLATFORM} golang:1.15-alpine AS build
+# The build argument TARGETPLATFORM is automatically
+# plugged in by docker build
+ARG TARGETPLATFORM
+
+# 📥 Install xcputranslate for your build architecture
+COPY --from=qmcgaw/xcputranslate /xcputranslate /usr/local/bin/xcputranslate
+
+# Setup additional build dependencies
+RUN apk --update add git
+ENV CGO_ENABLED=0
+WORKDIR /tmp/gobuild
+# Download your Go modules
+COPY go.mod go.sum ./
+RUN go mod download
+# Copy your source code
+COPY . .
+
+# 🦾 We cross build for linux/arm/v7
+RUN GOARCH="$(echo ${TARGETPLATFORM} | xcputranslate -language golang -field arch)" \
+    GOARM="$(echo ${TARGETPLATFORM} | xcputranslate -language golang -field arm)" \
+    go build -o entrypoint main.go
+
+# This is built on the target architecture (e.g. linux/arm/v7)
+FROM alpine:3.12
+# Run as user ID 1000, not the default root
+USER 1000
+ENTRYPOINT ["/usr/local/bin/entrypoint"]
+COPY --from=build --chown=1000 /tmp/gobuild/entrypoint /usr/local/bin/entrypoint
 ```
 
-This will pull the binary for your build architecture so you don't have to specify which CPU architecture you need.
+Note that you can also specify a Docker tag to have the program matching a certain Github release. For example:
 
-## Usage
+```Dockerfile
+COPY --from=qmcgaw/xcputranslate:v0.2.0 /xcputranslate /usr/local/bin/xcputranslate
+```
+
+### Out of Docker
+
+You can also run already built binaries out of Docker:
 
 ```sh
-echo linux/arm/v7 | xcputranslate -language golang -field arch
-# arm
-echo linux/arm/v7 | xcputranslate -language golang -field arm
+# Install
+VERSION=v0.2.0
+ARCH=amd64
+wget -O xcputranslate "https://github.com/qdm12/xcputranslate/releases/download/$VERSION/xcputranslate_$VERSION_linux_$ARCH"
+chmod +x xcputranslate
+
+# Run
+echo "linux/arm/v7" | xcputranslate -language golang -field arch
 # 7
 ```
 
-More information with
-
-```sh
-xcputranslate -help
-```
-
-In a Dockerfile, for example with Buildx:
-
-```Dockerfile
-RUN echo $TARGETPLATFORM | xcputranslate -language golang -field arch
-```
-
-## Platforms supported
+## Docker platforms supported
 
 - `linux/amd64`
 - `linux/386`
@@ -50,27 +82,13 @@ RUN echo $TARGETPLATFORM | xcputranslate -language golang -field arch
 - `linux/s390x`
 - `linux/ppc64le`
 
-## Golang
+## Languages supported
+
+### Golang
 
 - Use the flag `-field arch` to obtain the value to use for `GOARCH`
 - Use the flag `-field arm` to obtain the value to use for `GOARM`
 
-## Other languages
+### Other languages
 
 ▶️ [Create an issue](https://github.com/qdm12/xcputranslate/issues/new)!
-
-## Build it yourself
-
-Install Go, then either
-
-- Download it on your machine:
-
-  ```sh
-  go get github.com/qdm12/xcputranslate/cmd/xcputranslate
-  ```
-
-- Clone this repository and build it:
-
-  ```sh
-  GOARCH=arm GOARM=7 go build cmd/xcputranslate/main.go
-  ```
