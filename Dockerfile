@@ -2,25 +2,31 @@ ARG ALPINE_VERSION=3.12
 ARG GO_VERSION=1.15
 
 FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS base
-RUN apk --update add git
+# g++ is installed for the -race detector in go test
+RUN apk --update add git g++
+ARG GOLANGCI_LINT_VERSION=v1.34.1
+RUN wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | \
+  sh -s -- -b /usr/local/bin ${GOLANGCI_LINT_VERSION}
 ENV CGO_ENABLED=0
 WORKDIR /tmp/gobuild
+# Copy repository code and install Go dependencies
 COPY go.mod go.sum ./
 RUN go mod download
 COPY cmd/ ./cmd/
 COPY internal/ ./internal/
 
-FROM --platform=$BUILDPLATFORM base AS test
-ENV CGO_ENABLED=1
-RUN apk --update add g++
-RUN go test -race ./...
-
 FROM --platform=$BUILDPLATFORM base AS lint
-ARG GOLANGCI_LINT_VERSION=v1.34.1
-RUN wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | \
-  sh -s -- -b /usr/local/bin ${GOLANGCI_LINT_VERSION}
 COPY .golangci.yml ./
 RUN golangci-lint run --timeout=10m
+
+FROM --platform=$BUILDPLATFORM base AS tidy
+RUN git init && \
+  git config user.email ci@localhost && \
+  git config user.name ci && \
+  git add -A && git commit -m ci && \
+  sed -i '/\/\/ indirect/d' go.mod && \
+  go mod tidy && \
+  git diff --exit-code -- go.mod
 
 FROM --platform=$BUILDPLATFORM base AS build
 RUN go build -o xcputranslate cmd/xcputranslate/main.go && \
