@@ -58,4 +58,5 @@ LABEL \
   org.opencontainers.image.title="xcputranslate" \
   org.opencontainers.image.description=""
 ENTRYPOINT ["/xcputranslate"]
-COPY --from=build /tmp/gobuild/entrypoint /xcputranslate
+USER 1000
+COPY --from=build --chown=1000 /tmp/gobuild/entrypoint /xcputranslate
