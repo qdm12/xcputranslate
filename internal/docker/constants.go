@@ -13,4 +13,5 @@ const (
 const (
 	V6 ArchVersion = "v6"
 	V7 ArchVersion = "v7"
+	V8 ArchVersion = "v8"
 )
