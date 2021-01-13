@@ -76,7 +76,7 @@ xcputranslate -targetplatform "linux/arm/v7" -language golang -field arch
 
 - `linux/amd64`
 - `linux/386`
-- `linux/arm64`
+- `linux/arm64` & `linux/arm64/v8`
 - `linux/arm/v6`
 - `linux/arm/v7`
 - `linux/s390x`
