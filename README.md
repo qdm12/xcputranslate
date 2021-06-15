@@ -19,7 +19,7 @@ docker build --platform linux/arm/v7 .
 
 ```Dockerfile
 # We use the builder native architecture to build the program
-FROM --from=${BUILDPLATFORM} golang:1.15-alpine AS build
+FROM --from=${BUILDPLATFORM} golang:1.16-alpine3.13 AS build
 # The build argument TARGETPLATFORM is automatically
 # plugged in by docker build
 ARG TARGETPLATFORM
@@ -38,12 +38,12 @@ RUN go mod download
 COPY . .
 
 # 🦾 We cross build for linux/arm/v7
-RUN GOARCH="$(xcputranslate -targetplatform ${TARGETPLATFORM}  -language golang -field arch)" \
+RUN GOARCH="$(xcputranslate -targetplatform ${TARGETPLATFORM} -language golang -field arch)" \
     GOARM="$(xcputranslate -targetplatform ${TARGETPLATFORM} -language golang -field arm)" \
     go build -o entrypoint main.go
 
 # This is built on the target architecture (e.g. linux/arm/v7)
-FROM alpine:3.12
+FROM alpine:3.13
 # Run as user ID 1000, not the default root
 USER 1000
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
@@ -53,7 +53,7 @@ COPY --from=build --chown=1000 /tmp/gobuild/entrypoint /usr/local/bin/entrypoint
 Note that you can also specify a Docker tag to have the program matching a certain Github release. For example:
 
 ```Dockerfile
-COPY --from=qmcgaw/xcputranslate:v0.3.0 /xcputranslate /usr/local/bin/xcputranslate
+COPY --from=qmcgaw/xcputranslate:v0.4.0 /xcputranslate /usr/local/bin/xcputranslate
 ```
 
 ### Out of Docker
@@ -62,7 +62,7 @@ You can also run already built binaries out of Docker:
 
 ```sh
 # Install
-VERSION=v0.3.0
+VERSION=v0.4.0
 ARCH=amd64
 wget -O xcputranslate "https://github.com/qdm12/xcputranslate/releases/download/$VERSION/xcputranslate_$VERSION_linux_$ARCH"
 chmod +x xcputranslate
@@ -89,6 +89,13 @@ xcputranslate -targetplatform "linux/arm/v7" -language golang -field arch
 
 - Use the flag `-field arch` to obtain the value to use for `GOARCH`
 - Use the flag `-field arm` to obtain the value to use for `GOARM`
+
+### Uname
+
+Not really a language, although it gives the same as `uname -m` on Linux OSes.
+For example `linux/arm64` gives `aarch64`. This is useful for Rust commands for example.
+
+Use it using `-language=uname` and with `-field arch`.
 
 ### Other languages
 

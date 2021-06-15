@@ -13,6 +13,7 @@ import (
 	"github.com/qdm12/xcputranslate/internal/docker"
 	"github.com/qdm12/xcputranslate/internal/golang"
 	"github.com/qdm12/xcputranslate/internal/models"
+	"github.com/qdm12/xcputranslate/internal/uname"
 )
 
 //nolint:gochecknoglobals
@@ -104,6 +105,14 @@ func _main(_ context.Context, args []string, buildInfo models.BuildInfo) error {
 			output = arch
 		case "arm":
 			output = arm
+		default:
+			return fmt.Errorf("%w: %q", errInvalidField, field)
+		}
+	case "uname":
+		arch := uname.Translate(platform)
+		switch field {
+		case "arch":
+			output = arch
 		default:
 			return fmt.Errorf("%w: %q", errInvalidField, field)
 		}
