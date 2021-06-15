@@ -2,14 +2,11 @@ ARG ALPINE_VERSION=3.13
 ARG GO_VERSION=1.16
 
 FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS base
-# g++ is installed for the -race detector in go test
 RUN apk --update add git g++
-ARG GOLANGCI_LINT_VERSION=v1.34.1
-RUN wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | \
-  sh -s -- -b /usr/local/bin ${GOLANGCI_LINT_VERSION}
 ENV CGO_ENABLED=0
+ARG GOLANGCI_LINT_VERSION=v1.40.1
+RUN go get github.com/golangci/golangci-lint/cmd/golangci-lint@${GOLANGCI_LINT_VERSION}
 WORKDIR /tmp/gobuild
-# Copy repository code and install Go dependencies
 COPY go.mod go.sum ./
 RUN go mod download
 COPY cmd/ ./cmd/
@@ -29,8 +26,7 @@ RUN git init && \
   git diff --exit-code -- go.mod
 
 FROM --platform=$BUILDPLATFORM base AS build
-RUN go build -o xcputranslate cmd/xcputranslate/main.go && \
-  mv xcputranslate /usr/local/bin/
+RUN go build -o /usr/local/bin/xcputranslate cmd/xcputranslate/main.go
 ARG TARGETPLATFORM
 ARG VERSION=unknown
 ARG BUILD_DATE="an unknown date"
