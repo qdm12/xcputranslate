@@ -90,6 +90,13 @@ xcputranslate -targetplatform "linux/arm/v7" -language golang -field arch
 - Use the flag `-field arch` to obtain the value to use for `GOARCH`
 - Use the flag `-field arm` to obtain the value to use for `GOARM`
 
+### Uname
+
+Not really a language, although it gives the same as `uname -m` on Linux OSes.
+For example `linux/arm64` gives `aarch64`. This is useful for Rust commands for example.
+
+Use it using `-language=uname` and with `-field arch`.
+
 ### Other languages
 
 ▶️ [Create an issue](https://github.com/qdm12/xcputranslate/issues/new)!
