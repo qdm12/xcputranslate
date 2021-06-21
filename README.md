@@ -58,7 +58,7 @@ COPY --from=build --chown=1000 /tmp/gobuild/entrypoint /usr/local/bin/entrypoint
 Note that you can also specify a Docker tag to have the program matching a certain Github release. For example:
 
 ```Dockerfile
-COPY --from=qmcgaw/xcputranslate:v0.4.0 /xcputranslate /usr/local/bin/xcputranslate
+COPY --from=qmcgaw/xcputranslate:v0.6.0 /xcputranslate /usr/local/bin/xcputranslate
 ```
 
 ### Sequential cross CPU Docker builds
@@ -93,7 +93,7 @@ You can also run already built binaries out of Docker:
 
 ```sh
 # Install
-VERSION=v0.4.0
+VERSION=v0.6.0
 ARCH=amd64
 wget -O xcputranslate "https://github.com/qdm12/xcputranslate/releases/download/$VERSION/xcputranslate_$VERSION_linux_$ARCH"
 chmod +x xcputranslate
