@@ -7,12 +7,14 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
 	"github.com/qdm12/xcputranslate/internal/docker"
 	"github.com/qdm12/xcputranslate/internal/golang"
 	"github.com/qdm12/xcputranslate/internal/models"
+	"github.com/qdm12/xcputranslate/internal/sleep"
 	"github.com/qdm12/xcputranslate/internal/uname"
 )
 
@@ -77,7 +79,7 @@ func main() {
 	os.Exit(exitCode)
 }
 
-func _main(_ context.Context, args []string, buildInfo models.BuildInfo) error {
+func _main(ctx context.Context, args []string, buildInfo models.BuildInfo) error {
 	if len(args) == 1 {
 		return fmt.Errorf("%w: can be one of: version, translate", errNoCommand)
 	}
@@ -89,6 +91,8 @@ func _main(_ context.Context, args []string, buildInfo models.BuildInfo) error {
 		return nil
 	case "translate":
 		return translate(args)
+	case "sleep":
+		return clisleep(ctx, args)
 	default:
 		return fmt.Errorf("%w: %s", errInvalidCommand, args[1])
 	}
@@ -137,4 +141,36 @@ func translate(args []string) (err error) {
 	fmt.Println(output)
 
 	return nil
+}
+
+func clisleep(ctx context.Context, args []string) (err error) {
+	flagSet := flag.NewFlagSet(args[1], flag.ExitOnError)
+	targetPlatformPtr := flagSet.String("targetplatform", "", "can be for example linux/arm64")
+	const defaultOrder = "linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6,linux/386,linux/ppc64le,linux/s390x,linux/riscv64" //nolint:lll
+	orderPtr := flagSet.String("order", defaultOrder,
+		"order of CPU architectures to build. Use this to reduce the sleeping times.")
+	const defaultBuiltTime = 3 * time.Second
+	buildTimePtr := flagSet.Duration("buildtime", defaultBuiltTime, "approximate build time")
+	if err := flagSet.Parse(args[2:]); err != nil {
+		return err
+	}
+
+	buildTime, orderString, targetPlatformString := *buildTimePtr, *orderPtr, *targetPlatformPtr
+
+	targetPlatform, err := docker.Parse(targetPlatformString)
+	if err != nil {
+		return fmt.Errorf("%w: %s", errInvalidPlatform, err)
+	}
+
+	orderPlatforms := strings.Split(orderString, ",")
+	order := make([]docker.Platform, len(orderPlatforms))
+	for i, s := range orderPlatforms {
+		platform, err := docker.Parse(s)
+		if err != nil {
+			return fmt.Errorf("%w: in order at position %d: %s", errInvalidPlatform, i, err)
+		}
+		order[i] = platform
+	}
+
+	return sleep.Sleep(ctx, targetPlatform, order, buildTime)
 }

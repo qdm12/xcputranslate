@@ -26,12 +26,14 @@ RUN git init && \
   git diff --exit-code -- go.mod
 
 FROM --platform=$BUILDPLATFORM base AS build
+ARG ALLTARGETPLATFORMS
 RUN go build -o /usr/local/bin/xcputranslate cmd/xcputranslate/main.go
 ARG TARGETPLATFORM
 ARG VERSION=unknown
 ARG BUILD_DATE="an unknown date"
 ARG COMMIT=unknown
-RUN GOARCH="$(xcputranslate translate -targetplatform ${TARGETPLATFORM} -field arch)" \
+RUN xcputranslate sleep -buildtime=2s -targetplatform=${TARGETPLATFORM} -order=${ALLTARGETPLATFORMS} && \
+  GOARCH="$(xcputranslate translate -targetplatform ${TARGETPLATFORM} -field arch)" \
   GOARM="$(xcputranslate translate -targetplatform ${TARGETPLATFORM} -field arm)" \
   go build -trimpath -ldflags="-s -w \
   -X 'main.version=$VERSION' \

@@ -2,12 +2,17 @@
 
 A little Go static binary tool to convert Docker's buildx CPU architectures such as `linux/arm/v7` to strings for other compilers.
 
+🆕 Sleep before building to prevent build out of memory issues, depending on the target platform. See [moby/buildkit#1131](https://github.com/moby/buildkit/issues/1131) for more context.
+
 ## Setup and usage
 
-💡 It should be used with either:
+💡 It should be used with at least one of:
 
 - Docker [buildx](https://docs.docker.com/buildx/working-with-buildx/) builds
+- [BuildKit](https://github.com/moby/buildkit) directly
 - Docker builds running with [`DOCKER_BUILDKIT=1`](https://docs.docker.com/develop/develop-images/build_enhancements/#to-enable-buildkit-builds)
+
+### Docker platform translation
 
 The following shows an example on how to use it to cross compile a Go program.
 
@@ -55,6 +60,32 @@ Note that you can also specify a Docker tag to have the program matching a certa
 ```Dockerfile
 COPY --from=qmcgaw/xcputranslate:v0.4.0 /xcputranslate /usr/local/bin/xcputranslate
 ```
+
+### Sequential cross CPU Docker builds
+
+For now, Buildkit will run all your target platform specific build instructions (such as `go build`) in parallel. This can be nice but can also cause out of memory errors, even on CIs such as Github Actions. I had the problem with a `go build` cross compiling for 5+ architectures in parallel. See [moby/buildkit#1131](https://github.com/moby/buildkit/issues/1131) for more context.
+
+To fix this temporay problem, `xcputranslate` extends its feature by adding a new command: `xcputranslate sleep`
+
+It allows to sleep before building depending on the target platform and a list of target platforms.
+
+For example:
+
+```Dockerfile
+ARG ALLTARGETPLATFORMS=linux/amd64,linux/386
+RUN xcputranslate sleep -targetplatform=${TARGETPLATFORM} -order=${ALLTARGETPLATFORMS} && \
+    GOARCH="$(xcputranslate translate -targetplatform ${TARGETPLATFORM} -language golang -field arch)" \
+    GOARM="$(xcputranslate translate -targetplatform ${TARGETPLATFORM} -language golang -field arm)" \
+    go build -o entrypoint main.go
+```
+
+will sleep 0 for `linux/amd64` and 3 seconds for `linux/386`.
+
+The `-order` defaults to `linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6,linux/386,linux/ppc64le,linux/s390x,linux/riscv64` which is an order sorted by popularity. It means that, for example, for `-targetplatform=linux/arm/v7`, it will sleep `buildtime x 2` where 2 is the order index of the target platform.
+
+The `-buildtime` flag allows to set the estimated build time.
+
+If for example, your build takes 15 seconds and you want to target the platforms `linux/arm64` and `linux/s390x` only, you should set `-buildtime=15s -order=linux/arm64,linux/s390x` to have the shortest sleep times possible and each build run sequentially.
 
 ### Out of Docker
 
