@@ -24,8 +24,11 @@ var (
 )
 
 var (
+	errNoCommand       = errors.New("no command specified")
+	errInvalidCommand  = errors.New("invalid command")
 	errInvalidField    = errors.New("invalid field requested")
 	errInvalidLanguage = errors.New("invalid language requested")
+	errInvalidPlatform = errors.New("invalid platform")
 )
 
 func main() {
@@ -75,17 +78,28 @@ func main() {
 }
 
 func _main(_ context.Context, args []string, buildInfo models.BuildInfo) error {
-	if len(args) > 1 && args[1] == "version" {
+	if len(args) == 1 {
+		return fmt.Errorf("%w: can be one of: version, translate", errNoCommand)
+	}
+
+	switch args[1] {
+	case "version":
 		fmt.Printf("🤖 Version %s (commit %s built on %s)\n",
 			buildInfo.Version, buildInfo.Commit, buildInfo.BuildDate)
 		return nil
+	case "translate":
+		return translate(args)
+	default:
+		return fmt.Errorf("%w: %s", errInvalidCommand, args[1])
 	}
+}
 
-	flagSet := flag.NewFlagSet(args[0], flag.ExitOnError)
+func translate(args []string) (err error) {
+	flagSet := flag.NewFlagSet(args[1], flag.ExitOnError)
 	languagePtr := flagSet.String("language", "golang", "can be one of: golang")
 	fieldPtr := flagSet.String("field", "arch", "can be one of: arch, arm")
 	targetPlatformPtr := flagSet.String("targetplatform", "", "can be for example linux/arm64")
-	if err := flagSet.Parse(args[1:]); err != nil {
+	if err := flagSet.Parse(args[2:]); err != nil {
 		return err
 	}
 
@@ -93,7 +107,7 @@ func _main(_ context.Context, args []string, buildInfo models.BuildInfo) error {
 
 	platform, err := docker.Parse(targetPlatform)
 	if err != nil {
-		return err
+		return fmt.Errorf("%w: %s", errInvalidPlatform, err)
 	}
 
 	var output string

@@ -38,8 +38,8 @@ COPY . .
 COPY --from=qmcgaw/xcputranslate /xcputranslate /usr/local/bin/xcputranslate
 
 # 🦾 We cross build for linux/arm/v7
-RUN GOARCH="$(xcputranslate -targetplatform ${TARGETPLATFORM} -language golang -field arch)" \
-    GOARM="$(xcputranslate -targetplatform ${TARGETPLATFORM} -language golang -field arm)" \
+RUN GOARCH="$(xcputranslate translate -targetplatform ${TARGETPLATFORM} -language golang -field arch)" \
+    GOARM="$(xcputranslate translate -targetplatform ${TARGETPLATFORM} -language golang -field arm)" \
     go build -o entrypoint main.go
 
 # This is built on the target architecture (e.g. linux/arm/v7)
@@ -68,7 +68,7 @@ wget -O xcputranslate "https://github.com/qdm12/xcputranslate/releases/download/
 chmod +x xcputranslate
 
 # Run
-xcputranslate -targetplatform "linux/arm/v7" -language golang -field arch
+xcputranslate translate -targetplatform "linux/arm/v7" -language golang -field arch
 # 7
 ```
 
