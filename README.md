@@ -23,6 +23,10 @@ docker build --platform linux/arm/v7 .
 ```
 
 ```Dockerfile
+# Note you cannot COPY directly from the image or it will duplicate instructions
+# for each target platform. You need to FROM it and then COPY from the alias.
+FROM --platform=${BUILDPLATFORM} qmcgaw/xcputranslate:v0.6.0 AS xcputranslate
+
 # We use the builder native architecture to build the program
 FROM --from=${BUILDPLATFORM} golang:1.16-alpine3.13 AS build
 # The build argument TARGETPLATFORM is automatically
@@ -40,7 +44,7 @@ RUN go mod download
 COPY . .
 
 # 📥 Install xcputranslate for your build architecture
-COPY --from=qmcgaw/xcputranslate /xcputranslate /usr/local/bin/xcputranslate
+COPY --from=xcputranslate /xcputranslate /usr/local/bin/xcputranslate
 
 # 🦾 We cross build for linux/arm/v7
 RUN GOARCH="$(xcputranslate translate -targetplatform ${TARGETPLATFORM} -language golang -field arch)" \
