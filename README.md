@@ -24,9 +24,6 @@ FROM --from=${BUILDPLATFORM} golang:1.16-alpine3.13 AS build
 # plugged in by docker build
 ARG TARGETPLATFORM
 
-# 📥 Install xcputranslate for your build architecture
-COPY --from=qmcgaw/xcputranslate /xcputranslate /usr/local/bin/xcputranslate
-
 # Setup additional build dependencies
 RUN apk --update add git
 ENV CGO_ENABLED=0
@@ -36,6 +33,9 @@ COPY go.mod go.sum ./
 RUN go mod download
 # Copy your source code
 COPY . .
+
+# 📥 Install xcputranslate for your build architecture
+COPY --from=qmcgaw/xcputranslate /xcputranslate /usr/local/bin/xcputranslate
 
 # 🦾 We cross build for linux/arm/v7
 RUN GOARCH="$(xcputranslate -targetplatform ${TARGETPLATFORM} -language golang -field arch)" \
