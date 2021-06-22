@@ -100,7 +100,7 @@ func _main(ctx context.Context, args []string, buildInfo models.BuildInfo) error
 
 func translate(args []string) (err error) {
 	flagSet := flag.NewFlagSet(args[1], flag.ExitOnError)
-	languagePtr := flagSet.String("language", "golang", "can be one of: golang")
+	languagePtr := flagSet.String("language", "golang", "can be one of: golang, uname")
 	fieldPtr := flagSet.String("field", "arch", "can be one of: arch, arm")
 	targetPlatformPtr := flagSet.String("targetplatform", "", "can be for example linux/arm64")
 	if err := flagSet.Parse(args[2:]); err != nil {
