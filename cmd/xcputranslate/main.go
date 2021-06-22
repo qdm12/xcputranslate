@@ -101,7 +101,7 @@ func _main(ctx context.Context, args []string, buildInfo models.BuildInfo) error
 func translate(args []string) (err error) {
 	flagSet := flag.NewFlagSet(args[1], flag.ExitOnError)
 	languagePtr := flagSet.String("language", "golang", "can be one of: golang, uname")
-	fieldPtr := flagSet.String("field", "arch", "can be one of: arch, arm")
+	fieldPtr := flagSet.String("field", "", "required for golang and can be one of: arch, arm")
 	targetPlatformPtr := flagSet.String("targetplatform", "", "can be for example linux/arm64")
 	if err := flagSet.Parse(args[2:]); err != nil {
 		return err
@@ -127,13 +127,7 @@ func translate(args []string) (err error) {
 			return fmt.Errorf("%w: %q", errInvalidField, field)
 		}
 	case "uname":
-		arch := uname.Translate(platform)
-		switch field {
-		case "arch":
-			output = arch
-		default:
-			return fmt.Errorf("%w: %q", errInvalidField, field)
-		}
+		output = uname.Translate(platform)
 	default:
 		return fmt.Errorf("%w: %q", errInvalidLanguage, language)
 	}
