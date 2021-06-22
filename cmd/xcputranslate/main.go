@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/qdm12/xcputranslate/internal/dashes"
 	"github.com/qdm12/xcputranslate/internal/docker"
 	"github.com/qdm12/xcputranslate/internal/golang"
 	"github.com/qdm12/xcputranslate/internal/models"
@@ -100,7 +101,7 @@ func _main(ctx context.Context, args []string, buildInfo models.BuildInfo) error
 
 func translate(args []string) (err error) {
 	flagSet := flag.NewFlagSet(args[1], flag.ExitOnError)
-	languagePtr := flagSet.String("language", "golang", "can be one of: golang, uname")
+	languagePtr := flagSet.String("language", "golang", "can be one of: golang, uname, dashes")
 	fieldPtr := flagSet.String("field", "", "required for golang and can be one of: arch, arm")
 	targetPlatformPtr := flagSet.String("targetplatform", "", "can be for example linux/arm64")
 	if err := flagSet.Parse(args[2:]); err != nil {
@@ -128,6 +129,8 @@ func translate(args []string) (err error) {
 		}
 	case "uname":
 		output = uname.Translate(platform)
+	case "dashes":
+		output = dashes.Translate(platform)
 	default:
 		return fmt.Errorf("%w: %q", errInvalidLanguage, language)
 	}

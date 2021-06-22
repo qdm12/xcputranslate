@@ -130,7 +130,15 @@ xcputranslate translate -targetplatform "linux/arm/v7" -language golang -field a
 Not really a language, although it gives the same as `uname -m` on Linux OSes.
 For example `linux/arm64` gives `aarch64`. This is useful for Rust commands for example.
 
-Use it using `-language=uname` and with `-field arch`.
+Use it using `-language=uname`.
+
+### Dashes
+
+Not really a language, this is usually used for URLs of pre-made binaries such as `https://github.com/moby/buildkit/releases/download/v0.8.3/buildkit-v0.8.3.linux-arm-v7.tar.gz`.
+
+For example `linux/arm/v7` gives `arm-v7`.
+
+Use it using `-language=dashes`.
 
 ### Other languages
 
