@@ -1,7 +1,7 @@
 ARG ALPINE_VERSION=3.13
 ARG GO_VERSION=1.16
 
-FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS base
+FROM --platform=${BUILDPLATFORM} golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS base
 RUN apk --update add git g++
 ENV CGO_ENABLED=0
 ARG GOLANGCI_LINT_VERSION=v1.40.1
@@ -12,11 +12,11 @@ RUN go mod download
 COPY cmd/ ./cmd/
 COPY internal/ ./internal/
 
-FROM --platform=$BUILDPLATFORM base AS lint
+FROM --platform=${BUILDPLATFORM} base AS lint
 COPY .golangci.yml ./
 RUN golangci-lint run --timeout=10m
 
-FROM --platform=$BUILDPLATFORM base AS tidy
+FROM --platform=${BUILDPLATFORM} base AS tidy
 RUN git init && \
   git config user.email ci@localhost && \
   git config user.name ci && \
@@ -25,7 +25,7 @@ RUN git init && \
   go mod tidy && \
   git diff --exit-code -- go.mod
 
-FROM --platform=$BUILDPLATFORM base AS build
+FROM --platform=${BUILDPLATFORM} base AS build
 ARG ALLTARGETPLATFORMS
 RUN go build -o /usr/local/bin/xcputranslate cmd/xcputranslate/main.go
 ARG TARGETPLATFORM
