@@ -2,7 +2,7 @@
 
 A little Go static binary tool to convert Docker's buildx CPU architectures such as `linux/arm/v7` to strings for other compilers.
 
-🆕 Sleep before building to prevent build out of memory issues, depending on the target platform. See [moby/buildkit#1131](https://github.com/moby/buildkit/issues/1131) for more context.
+🆕 `-setenv` flag to set environment variables for the target language.
 
 ## Setup and usage
 
@@ -47,8 +47,7 @@ COPY . .
 COPY --from=xcputranslate /xcputranslate /usr/local/bin/xcputranslate
 
 # 🦾 We cross build for linux/arm/v7
-RUN GOARCH="$(xcputranslate translate -targetplatform ${TARGETPLATFORM} -language golang -field arch)" \
-    GOARM="$(xcputranslate translate -targetplatform ${TARGETPLATFORM} -language golang -field arm)" \
+RUN xcputranslate translate -setenv -targetplatform ${TARGETPLATFORM} -language golang && \
     go build -o entrypoint main.go
 
 # This is built on the target architecture (e.g. linux/arm/v7)
@@ -78,8 +77,7 @@ For example:
 ```Dockerfile
 ARG ALLTARGETPLATFORMS=linux/amd64,linux/386
 RUN xcputranslate sleep -targetplatform=${TARGETPLATFORM} -order=${ALLTARGETPLATFORMS} && \
-    GOARCH="$(xcputranslate translate -targetplatform ${TARGETPLATFORM} -language golang -field arch)" \
-    GOARM="$(xcputranslate translate -targetplatform ${TARGETPLATFORM} -language golang -field arm)" \
+    xcputranslate translate -setenv -targetplatform ${TARGETPLATFORM} -language golang && \
     go build -o entrypoint main.go
 ```
 
@@ -104,7 +102,9 @@ chmod +x xcputranslate
 
 # Run
 xcputranslate translate -targetplatform "linux/arm/v7" -language golang -field arch
-# 7
+xcputranslate translate -setenv -targetplatform "linux/arm/v7" -language golang
+echo "$GOARCH $GOARM"
+# arm 7
 ```
 
 ## Docker platforms supported
@@ -122,6 +122,7 @@ xcputranslate translate -targetplatform "linux/arm/v7" -language golang -field a
 
 ### Golang
 
+- Use the flag `-setenv` to set the `GOARCH` and `GOARCH` environment variables. Note this will not print anything in this mode.
 - Use the flag `-field arch` to obtain the value to use for `GOARCH`
 - Use the flag `-field arm` to obtain the value to use for `GOARM`
 
