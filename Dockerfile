@@ -4,7 +4,7 @@ ARG GO_VERSION=1.17
 FROM --platform=${BUILDPLATFORM} golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS base
 RUN apk --update add git g++
 ENV CGO_ENABLED=0
-ARG GOLANGCI_LINT_VERSION=v1.40.1
+ARG GOLANGCI_LINT_VERSION=v1.44.2
 RUN go get github.com/golangci/golangci-lint/cmd/golangci-lint@${GOLANGCI_LINT_VERSION}
 WORKDIR /tmp/gobuild
 COPY go.mod go.sum ./
