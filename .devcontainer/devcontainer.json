@@ -8,7 +8,7 @@
         "vscode"
     ],
     "shutdownAction": "stopCompose",
-    "postCreateCommand": "go mod download",
+    "postCreateCommand": "~/.windows.sh && go mod download && go mod tidy",
     "workspaceFolder": "/workspace",
     // "overrideCommand": "",
     "extensions": [
@@ -24,6 +24,12 @@
         "github.vscode-pull-request-github", // Github interaction
         "redhat.vscode-yaml", // Kubernetes, Drone syntax highlighting
         "IBM.output-colorizer", // Colorize your output/test logs
+        // "mohsen1.prettify-json", // Prettify JSON data
+        // "zxh404.vscode-proto3", // Supports Proto syntax
+        // "jrebocho.vscode-random", // Generates random values
+        // "alefragnani.Bookmarks", // Manage bookmarks
+        // "quicktype.quicktype", // Paste JSON as code
+        // "spikespaz.vscode-smoothtype", // smooth cursor animation
     ],
     "settings": {
         "files.eol": "\n",
@@ -31,32 +37,33 @@
             "ms-azuretools.vscode-docker": "workspace"
         },
         "go.useLanguageServer": true,
-        "go.autocompleteUnimportedPackages": true,
-        "go.gotoSymbol.includeImports": true,
-        "go.gotoSymbol.includeGoroot": true,
-        "gopls": {
-            "completeUnimported": true,
-            "deepCompletion": true,
-            "usePlaceholders": false
-        },
-        "go.lintTool": "golangci-lint",
-        "go.buildOnSave": "workspace",
-        "go.lintOnSave": "workspace",
-        "go.vetOnSave": "workspace",
-        "editor.formatOnSave": true,
         "[go]": {
+            "editor.codeActionsOnSave": {
+                "source.organizeImports": true
+            },
+        },
+        "[go.mod]": {
             "editor.codeActionsOnSave": {
                 "source.organizeImports": true
             }
         },
+        "gopls": {
+            "build.buildFlags": [
+                "-tags",
+                ""
+            ],
+            "usePlaceholders": false,
+            "staticcheck": true,
+        },
+        "go.lintTool": "golangci-lint",
+        "go.lintOnSave": "package",
+        "editor.formatOnSave": true,
         "go.toolsEnvVars": {
-            "GOFLAGS": "-tags=",
-            "CGO_ENABLED": 1 // for the race detector
+            "CGO_ENABLED": 0
         },
-        "gopls.env": {
-            "GOFLAGS": "-tags="
+        "go.testEnvVars": {
+            "": "",
         },
-        "go.testEnvVars": {},
         "go.testFlags": [
             "-v",
             "-race"
@@ -64,5 +71,6 @@
         "go.testTimeout": "10s",
         "go.coverOnSingleTest": true,
         "go.coverOnSingleTestFile": true,
+        "go.coverOnTestPackage": true
     }
 }
