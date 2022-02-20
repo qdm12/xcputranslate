@@ -25,7 +25,7 @@ docker build --platform linux/arm/v7 .
 ```Dockerfile
 # Note you cannot COPY directly from the image or it will duplicate instructions
 # for each target platform. You need to FROM it and then COPY from the alias.
-FROM --platform=${BUILDPLATFORM} qmcgaw/xcputranslate:v0.6.0 AS xcputranslate
+FROM --platform=${BUILDPLATFORM} qmcgaw/xcputranslate:v0.7.0 AS xcputranslate
 
 # We use the builder native architecture to build the program
 FROM --from=${BUILDPLATFORM} golang:1.17-alpine3.15 AS build
@@ -61,7 +61,7 @@ COPY --from=build --chown=1000 /tmp/gobuild/entrypoint /usr/local/bin/entrypoint
 Note that you can also specify a Docker tag to have the program matching a certain Github release. For example:
 
 ```Dockerfile
-COPY --from=qmcgaw/xcputranslate:v0.6.0 /xcputranslate /usr/local/bin/xcputranslate
+COPY --from=qmcgaw/xcputranslate:v0.7.0 /xcputranslate /usr/local/bin/xcputranslate
 ```
 
 ### Sequential cross CPU Docker builds
@@ -95,7 +95,7 @@ You can also run already built binaries out of Docker:
 
 ```sh
 # Install
-VERSION=v0.6.0
+VERSION=v0.7.0
 ARCH=amd64
 wget -O xcputranslate "https://github.com/qdm12/xcputranslate/releases/download/$VERSION/xcputranslate_$VERSION_linux_$ARCH"
 chmod +x xcputranslate
