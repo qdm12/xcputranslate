@@ -63,6 +63,3 @@ jobs:
             ALLTARGETPLATFORMS=${{ steps.vars.outputs.platforms }}
           tags: qmcgaw/xcputranslate:latest
           push: true
-      - name: Microbadger hook
-        run: curl -X POST https://hooks.microbadger.com/images/qmcgaw/xcputranslate/TAQSZ63KRaLr7ux10kRMMCfTdB0=
-        continue-on-error: true
