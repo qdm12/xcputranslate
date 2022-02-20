@@ -28,7 +28,7 @@ docker build --platform linux/arm/v7 .
 FROM --platform=${BUILDPLATFORM} qmcgaw/xcputranslate:v0.6.0 AS xcputranslate
 
 # We use the builder native architecture to build the program
-FROM --from=${BUILDPLATFORM} golang:1.16-alpine3.13 AS build
+FROM --from=${BUILDPLATFORM} golang:1.17-alpine3.13 AS build
 # The build argument TARGETPLATFORM is automatically
 # plugged in by docker build
 ARG TARGETPLATFORM
