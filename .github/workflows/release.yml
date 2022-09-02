@@ -67,7 +67,7 @@ jobs:
             ALLTARGETPLATFORMS=${{ steps.vars.outputs.platforms }}
           tags: qmcgaw/xcputranslate:${{ steps.vars.outputs.version }}
           push: true
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@v3
         with:
           go-version: 1.19
       - uses: goreleaser/goreleaser-action@v3.1.0
