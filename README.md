@@ -26,7 +26,7 @@ docker build --platform linux/arm/v7 .
 FROM --platform=${BUILDPLATFORM} qmcgaw/xcputranslate:v0.7.0 AS xcputranslate
 
 # We use the builder native architecture to build the program
-FROM --platform=${BUILDPLATFORM} golang:1.17-alpine3.15 AS build
+FROM --platform=${BUILDPLATFORM} golang:1.17-alpine3.16 AS build
 # The build argument TARGETPLATFORM is automatically
 # plugged in by docker build
 ARG TARGETPLATFORM
@@ -50,7 +50,7 @@ RUN GOARCH="$(xcputranslate translate -targetplatform ${TARGETPLATFORM} -languag
     go build -o entrypoint main.go
 
 # This is built on the target architecture (e.g. linux/arm/v7)
-FROM alpine:3.15
+FROM alpine:3.16
 # Run as user ID 1000, not the default root
 USER 1000
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
