@@ -26,7 +26,8 @@ ARG VERSION=unknown
 ARG BUILD_DATE="an unknown date"
 ARG COMMIT=unknown
 RUN xcputranslate sleep -buildtime=2s -targetplatform=${TARGETPLATFORM} -order=${ALLTARGETPLATFORMS} && \
-  xcputranslate translate -setenv -targetplatform ${TARGETPLATFORM} && \
+  GOARCH="$(xcputranslate translate -targetplatform ${TARGETPLATFORM} -field arch)" \
+  GOARM="$(xcputranslate translate -targetplatform ${TARGETPLATFORM} -field arm)" \
   go build -trimpath -ldflags="-s -w \
   -X 'main.version=$VERSION' \
   -X 'main.buildDate=$BUILD_DATE' \

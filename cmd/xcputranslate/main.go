@@ -103,13 +103,12 @@ func translate(args []string) (err error) {
 	flagSet := flag.NewFlagSet(args[1], flag.ExitOnError)
 	languagePtr := flagSet.String("language", "golang", "can be one of: golang, uname, dashes")
 	fieldPtr := flagSet.String("field", "", "required for golang and can be one of: arch, arm")
-	setEnvPtr := flagSet.Bool("setenv", true, "Only set environment variables corresponding to language and not print")
 	targetPlatformPtr := flagSet.String("targetplatform", "", "can be for example linux/arm64")
 	if err := flagSet.Parse(args[2:]); err != nil {
 		return err
 	}
 
-	language, field, setEnv, targetPlatform := *languagePtr, *fieldPtr, *setEnvPtr, *targetPlatformPtr
+	language, field, targetPlatform := *languagePtr, *fieldPtr, *targetPlatformPtr
 
 	platform, err := docker.Parse(targetPlatform)
 	if err != nil {
@@ -120,10 +119,6 @@ func translate(args []string) (err error) {
 	switch language {
 	case "golang":
 		arch, arm := golang.Translate(platform)
-
-		if setEnv {
-			return golang.SetEnv(arch, arm)
-		}
 
 		switch field {
 		case "arch":

@@ -2,8 +2,6 @@
 
 A little Go static binary tool to convert Docker's buildx CPU architectures such as `linux/arm/v7` to strings for other compilers.
 
-🆕 `-setenv` flag to set environment variables for the target language.
-
 ## Setup and usage
 
 💡 It should be used with at least one of:
@@ -47,7 +45,8 @@ COPY . .
 COPY --from=xcputranslate /xcputranslate /usr/local/bin/xcputranslate
 
 # 🦾 We cross build for linux/arm/v7
-RUN xcputranslate translate -setenv -targetplatform ${TARGETPLATFORM} -language golang && \
+RUN GOARCH="$(xcputranslate translate -targetplatform ${TARGETPLATFORM} -language golang -field arch)" \
+    GOARM="$(xcputranslate translate -targetplatform ${TARGETPLATFORM} -language golang -field arm)" \
     go build -o entrypoint main.go
 
 # This is built on the target architecture (e.g. linux/arm/v7)
@@ -77,7 +76,8 @@ For example:
 ```Dockerfile
 ARG ALLTARGETPLATFORMS=linux/amd64,linux/386
 RUN xcputranslate sleep -targetplatform=${TARGETPLATFORM} -order=${ALLTARGETPLATFORMS} && \
-    xcputranslate translate -setenv -targetplatform ${TARGETPLATFORM} -language golang && \
+    GOARCH="$(xcputranslate translate -targetplatform ${TARGETPLATFORM} -language golang -field arch)" \
+    GOARM="$(xcputranslate translate -targetplatform ${TARGETPLATFORM} -language golang -field arm)" \
     go build -o entrypoint main.go
 ```
 
@@ -102,9 +102,7 @@ chmod +x xcputranslate
 
 # Run
 xcputranslate translate -targetplatform "linux/arm/v7" -language golang -field arch
-xcputranslate translate -setenv -targetplatform "linux/arm/v7" -language golang
-echo "$GOARCH $GOARM"
-# arm 7
+# arm
 ```
 
 ## Docker platforms supported
@@ -122,7 +120,6 @@ echo "$GOARCH $GOARM"
 
 ### Golang
 
-- Use the flag `-setenv` to set the `GOARCH` and `GOARCH` environment variables. Note this will not print anything in this mode.
 - Use the flag `-field arch` to obtain the value to use for `GOARCH`
 - Use the flag `-field arm` to obtain the value to use for `GOARM`
 
