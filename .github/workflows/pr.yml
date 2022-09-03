@@ -17,7 +17,7 @@ jobs:
   job:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3.0.2
       - name: Build base image
         run: docker build --target base -t base .
         env:
@@ -36,7 +36,7 @@ jobs:
         env:
           DOCKER_BUILDKIT: "1"
 
-      - uses: docker/setup-qemu-action@v1
+      - uses: docker/setup-qemu-action@v2
       - uses: docker/setup-buildx-action@v1
       - name: Build final image
         env:
