@@ -42,6 +42,11 @@ jobs:
         with:
           username: qmcgaw
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: qdm12
+          password: ${{ github.token }}
       - name: Set variables
         id: vars
         run: |
@@ -58,5 +63,7 @@ jobs:
             COMMIT=${{ steps.vars.outputs.commit }}
             VERSION=latest
             ALLTARGETPLATFORMS=${{ steps.vars.outputs.platforms }}
-          tags: qmcgaw/xcputranslate:latest
+          tags: |
+            qmcgaw/xcputranslate:latest
+            ghcr.io/qdm12/xcputranslate:latest
           push: true
