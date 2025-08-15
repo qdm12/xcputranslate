@@ -1,10 +1,13 @@
+ARG REGISTRY=docker.io
+ARG BINPOT_REPO=${REGISTRY}/qmcgaw/binpot
+
 ARG ALPINE_VERSION=3.22
 ARG GO_VERSION=1.25
 ARG GOLANGCI_LINT_VERSION=v2.4.0
 
-FROM --platform=${BUILDPLATFORM} qmcgaw/binpot:golangci-lint-${GOLANGCI_LINT_VERSION} AS golangci-lint
+FROM --platform=${BUILDPLATFORM} ${BINPOT_REPO}:golangci-lint-${GOLANGCI_LINT_VERSION} AS golangci-lint
 
-FROM --platform=${BUILDPLATFORM} golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS base
+FROM --platform=${BUILDPLATFORM} ${REGISTRY}/golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS base
 RUN apk --update add git g++
 ENV CGO_ENABLED=0
 COPY --from=golangci-lint /bin /go/bin/golangci-lint
