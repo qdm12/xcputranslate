@@ -21,7 +21,7 @@ func Parse(s string) (platform Platform, err error) {
 	}
 	elements := strings.Split(s, "/")
 	switch len(elements) {
-	case 2:
+	case 2: //nolint:mnd
 		platform.Arch = Arch(elements[1])
 		switch platform.Arch {
 		case AMD64, C386, ARM64, S390X, PPC64LE, RISCV64:
@@ -30,7 +30,7 @@ func Parse(s string) (platform Platform, err error) {
 		default:
 			return platform, fmt.Errorf("%w %q in %q", ErrInvalidArch, elements[1], s)
 		}
-	case 3:
+	case 3: //nolint:mnd
 		platform.Arch = Arch(elements[1])
 		switch platform.Arch {
 		case AMD64, C386, S390X, PPC64LE, RISCV64:

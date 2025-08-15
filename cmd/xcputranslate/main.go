@@ -112,7 +112,7 @@ func translate(args []string) (err error) {
 
 	platform, err := docker.Parse(targetPlatform)
 	if err != nil {
-		return fmt.Errorf("%w: %s", errInvalidPlatform, err)
+		return fmt.Errorf("%w: %w", errInvalidPlatform, err)
 	}
 
 	var output string
@@ -157,7 +157,7 @@ func clisleep(ctx context.Context, args []string) (err error) {
 
 	targetPlatform, err := docker.Parse(targetPlatformString)
 	if err != nil {
-		return fmt.Errorf("%w: %s", errInvalidPlatform, err)
+		return fmt.Errorf("%w: %w", errInvalidPlatform, err)
 	}
 
 	orderPlatforms := strings.Split(orderString, ",")
@@ -165,7 +165,7 @@ func clisleep(ctx context.Context, args []string) (err error) {
 	for i, s := range orderPlatforms {
 		platform, err := docker.Parse(s)
 		if err != nil {
-			return fmt.Errorf("%w: in order at position %d: %s", errInvalidPlatform, i, err)
+			return fmt.Errorf("%w: in order at position %d: %w", errInvalidPlatform, i, err)
 		}
 		order[i] = platform
 	}

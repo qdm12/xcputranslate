@@ -1,6 +1,6 @@
 ARG ALPINE_VERSION=3.22
 ARG GO_VERSION=1.25
-ARG GOLANGCI_LINT_VERSION=v1.49.0
+ARG GOLANGCI_LINT_VERSION=v2.4.0
 
 FROM --platform=${BUILDPLATFORM} qmcgaw/binpot:golangci-lint-${GOLANGCI_LINT_VERSION} AS golangci-lint
 
@@ -16,7 +16,7 @@ COPY internal/ ./internal/
 
 FROM --platform=${BUILDPLATFORM} base AS lint
 COPY .golangci.yml ./
-RUN golangci-lint run --timeout=10m
+RUN golangci-lint run
 
 FROM --platform=${BUILDPLATFORM} base AS build
 ARG ALLTARGETPLATFORMS
