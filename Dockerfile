@@ -22,9 +22,9 @@ COPY .golangci.yml ./
 RUN golangci-lint run
 
 FROM --platform=${BUILDPLATFORM} base AS build
-ARG ALLTARGETPLATFORMS
 RUN go build -o /usr/local/bin/xcputranslate cmd/xcputranslate/main.go
 ARG TARGETPLATFORM
+ARG ALLTARGETPLATFORMS=${TARGETPLATFORM}
 ARG VERSION=unknown
 ARG BUILD_DATE="an unknown date"
 ARG COMMIT=unknown
