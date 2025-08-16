@@ -72,7 +72,7 @@ jobs:
           push: true
       - uses: actions/setup-go@v5
         with:
-          go-version: 1.25
+          go-version-file: "go.mod"
       - uses: goreleaser/goreleaser-action@v3.1.0
         with:
           version: latest
