@@ -73,9 +73,9 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: "go.mod"
-      - uses: goreleaser/goreleaser-action@v3.1.0
+      - uses: goreleaser/goreleaser-action@v6
         with:
           version: latest
-          args: release --config .gorelease.yml --rm-dist
+          args: release --config .gorelease.yml --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
