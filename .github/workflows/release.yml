@@ -70,7 +70,7 @@ jobs:
             qmcgaw/xcputranslate:${{ steps.vars.outputs.version }}
             ghcr.io/qdm12/xcputranslate:${{ steps.vars.outputs.version }}
           push: true
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version-file: "go.mod"
       - uses: goreleaser/goreleaser-action@v6
